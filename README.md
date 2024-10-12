@@ -57,6 +57,8 @@ Az összes komponens, amely feliratkozott a Context-re, újrarenderelésre kerü
 
 5. Továbbá a provider value értékébe helyezzük el azokat a változókat, amelyeket használni szeretnénk majd a Provider által körbevett komponensekben.  Most így néz ki a KattContext.js-ben a Providerünk: 
 
+
+        
     export const KattProvider = ({ children }) => {
         const [lepes, setLepes] = useState(0);
         const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
