@@ -1,5 +1,5 @@
 
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import './App.css';
 import JatekTer from './components/JatekTer';
 import { KattContext } from './context/KattContext';

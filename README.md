@@ -1,70 +1,122 @@
-# Getting Started with Create React App
+# Tic Tac Toe alkalmazás context használatával
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Az előző példában láttuk, hogyan használjuk a propsokat és stateket egy react alkalmazásban, valamint azt is, hogy a gyerek komponensnek miként adhatjuk át a kattintás kezelő függvényt. 
+<a href="https://github.com/csefikatalin/tictactoe_2024.git">TitTacToe props, state és az állapot buborékoltatása a komponensfán. </a>
 
-## Available Scripts
+## Context API
 
-In the project directory, you can run:
+A REACT Context API a React beépített funkciója, mely lehetővé teszi a komponensek közötti adatátvitelt az egész komponensfa hierarchiájában anélkül, hogy közvetlenül props-okon keresztül kellene átadni az adatokat. 
 
-### `npm start`
+Különösen azokban az esetekben hasznos, amikor az alkalmazás állapotának vagy beállításainak globális elérést szeretnénk biztosítani a komponensek számára, vagy ha egy alkomponens által elérhető adatokat szeretnénk átadni több szülőkomponensnek. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Alkalmas egyszerűbb állapotkezelésre vagy statikus értékek megosztására (pl. téma, nyelvi beállítások, autentikációs állapot).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Az állapotot általában egy useState vagy useReducer hookon keresztül kezeljük a Context Providerben, majd ezt az állapotot terjesztjük tovább a Context-en keresztül.
 
-### `npm test`
+A Context nem rendelkezik saját állapotkezelő logikával, inkább az állapot elérhetőségéért felelős.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Az összes komponens, amely feliratkozott a Context-re, újrarenderelésre kerül, még akkor is, ha az adott komponens nem használja az éppen megváltozott adatokat. Ezért Context inkább kisebb, statikusabb adatokra alkalmas.
 
-### `npm run build`
+## Context API két fő eleme
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Provider: Ez a komponens tartalmazza az adatokat, amelyeket más komponensek szeretnének használni. A Provider az adatokat egy Context-be helyezi el. Az általa körbeölelt komponensek számára ezáltal elérhetővé válnak ezek az adatok. 
+2.	useContext hook (vagy Consumer ): Ez a mechanizmus, amely lehetővé teszi a komponensek számára, hogy hozzáférjenek az adatokhoz, amelyeket a Provider rendelkezésre bocsátott. 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Használata lépésről lépésre
 
-### `npm run eject`
+1. Hozzunk létre egy context mappát az src mappában, abban egy KattContext.js fájlt. 
+2. A fájlba importáljuk a createContext hook-ot, és hozzuk létre a contextünket. 
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+    import { createContext, useState } from "react";
+    export const KattContext = createContext("");
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. Ezután hozzuk létre a Providert. 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    export const KattProvider = ({ children }) => {
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+        return <KattContext.Provider value={{}}> {children} </KattContext.Provider>;
+    };
+4. Mostmár kivehetjük az App komponensben definiált állapotkezelést és áthelyezhetjük a Providerünkbe. 
 
-## Learn More
+  const [lepes, setLepes] = useState(0);
+  const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
+  
+  function katt(adat) {
+    const sl = [...lista];
+    if (lepes % 2 == 0) {
+      sl[adat] = "X";
+    } else {
+      sl[adat] = "O";
+    }
+    setLista([...sl]);
+    let slepes = lepes + 1;
+    setLepes(slepes);
+  }
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+5. Továbbá a provider value értékébe helyezzük el azokat a változókat, amelyeket használni szeretnénk majd a Provider által körbevett komponensekben.  Most így néz ki a KattContext.js-ben a Providerünk: 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    export const KattProvider = ({ children }) => {
+        const [lepes, setLepes] = useState(0);
+        const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
+        
+        function katt(adat) {
+            const sl = [...lista];
+            if (lepes % 2 == 0) {
+            sl[adat] = "X";
+            } else {
+            sl[adat] = "O";
+            }
+            setLista([...sl]);
+            let slepes = lepes + 1;
+            setLepes(slepes);
+        }
 
-### Code Splitting
+        return (
+            <KattContext.Provider value={{ lista, katt }}>
+            {" "}
+            {children}{" "}
+            </KattContext.Provider>
+        );
+    };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+6. Most az index.js-ben öleljük körbe a providerrel az App komponenst. Ezután már használhatjuk a provider value paraméterében megadott változókat az App-ban , illetve annak gyerekkomponenseiben.  Ne felejtsük el importálni a Kattprovidert! import { KattProvider } from './context/KattContext'; 
 
-### Analyzing the Bundle Size
+    <React.StrictMode>
+    <KattProvider>
+        <App />
+    </KattProvider>
+    </React.StrictMode>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+7. App komponens: 
+Az App komponensből kivehetjük az állapotkezelést, ám itt használni akarjuk a Contextünkben definiált lista state-et. 
+Mivel ez szerepel a Provider value értékei között, ezért felhasználhatjuk itt. 
+Ehhez használnunk kell a useContext hook-ot. 
+Az App komponens első sorába  írjuk be: 
 
-### Making a Progressive Web App
+    const {lista} = useContext(KattContext)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Ne felejtsük el importálni a useContext-et!
 
-### Advanced Configuration
+8. Hasonló módon járjunk el a Cella komponensnél is! Ott a katt függvényt akarjuk használni, ezért azt kell behívni a contextből. 
+    
+    const {katt} =useContext(KattContext)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Ezután már nem kell a korábban létrehozott katt függvényt sem itt, sem a JatekTer komonensben, törölhetőek. A Cella komponens közvetlenül hívni tudja a context katt függvényét, ahol az állapotkezelés megtörténik majd.
 
-### Deployment
+    import React, { useContext } from 'react'
+    import './Cella.css'
+    import { KattContext } from '../context/KattContext'
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+    export default function Cella(props) {
+        const {katt} =useContext(KattContext)
+        
+        return (
+            <div className='cella' onClick={()=>{katt(props.index)}}>
+                {props.jel}
+            </div>
+        )
+    }
 
-### `npm run build` fails to minify
+ 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

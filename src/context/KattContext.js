@@ -3,18 +3,8 @@ export const KattContext = createContext("");
 
 export const KattProvider = ({ children }) => {
   const [lepes, setLepes] = useState(0);
-  const [lista, setLista] = useState([
-    "X",
-    "X",
-    " ",
-    "O",
-    " ",
-    " ",
-    " ",
-    " ",
-    "O",
-  ]);
-
+  const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
+  
   function katt(adat) {
     const sl = [...lista];
     if (lepes % 2 == 0) {
@@ -27,5 +17,10 @@ export const KattProvider = ({ children }) => {
     setLepes(slepes);
   }
 
-  return <KattContext.Provider value={{lista, katt}}> {children} </KattContext.Provider>;
+  return (
+    <KattContext.Provider value={{ lista, katt }}>
+      {" "}
+      {children}{" "}
+    </KattContext.Provider>
+  );
 };
