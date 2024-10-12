@@ -39,20 +39,21 @@ Az összes komponens, amely feliratkozott a Context-re, újrarenderelésre kerü
     };
 4. Most már kivehetjük az App komponensben definiált állapotkezelést és áthelyezhetjük a Providerünkbe. 
 
-    const [lepes, setLepes] = useState(0);
-    const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
-    
-    function katt(adat) {
-        const sl = [...lista];
-        if (lepes % 2 == 0) {
-        sl[adat] = "X";
-        } else {
-        sl[adat] = "O";
+        const [lepes, setLepes] = useState(0);
+        const [lista, setLista] = useState(["X","X"," ","O"," "," "," "," ","O",]);
+        
+        function katt(adat) {
+            const sl = [...lista];
+            if (lepes % 2 == 0) {
+            sl[adat] = "X";
+            } else {
+            sl[adat] = "O";
+            }
+            setLista([...sl]);
+            let slepes = lepes + 1;
+            setLepes(slepes);
         }
-        setLista([...sl]);
-        let slepes = lepes + 1;
-        setLepes(slepes);
-    }
+
 
 5. Továbbá a provider value értékébe helyezzük el azokat a változókat, amelyeket használni szeretnénk majd a Provider által körbevett komponensekben.  Most így néz ki a KattContext.js-ben a Providerünk: 
 
